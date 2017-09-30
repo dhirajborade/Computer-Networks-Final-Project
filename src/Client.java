@@ -12,6 +12,7 @@ public class Client {
 	String MESSAGE; // capitalized message read from the server
 
 	public void Client() {
+		// Constructor
 	}
 
 	void run() {
