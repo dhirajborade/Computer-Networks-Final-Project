@@ -1,10 +1,10 @@
-import java.net.*;
-import java.io.*;
-import java.nio.*;
-import java.nio.channels.*;
-import java.util.*;
+package edu.ufl.cise.cnt5106c;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
 
-//Meghana's Server Class
 public class Server {
 
 	private static final int sPort = 8000; // The server will be listening on this port number
