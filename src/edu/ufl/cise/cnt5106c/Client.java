@@ -1,8 +1,12 @@
-import java.net.*;
-import java.io.*;
-import java.nio.*;
-import java.nio.channels.*;
-import java.util.*;
+package edu.ufl.cise.cnt5106c;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.ConnectException;
+import java.net.Socket;
+import java.net.UnknownHostException;
 
 public class Client {
 	Socket requestSocket; // socket connect to the server
@@ -11,7 +15,7 @@ public class Client {
 	String message; // message send to the server
 	String MESSAGE; // capitalized message read from the server
 
-	public void Client() {
+	public Client() {
 	}
 
 	void run() {
