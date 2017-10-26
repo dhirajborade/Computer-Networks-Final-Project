@@ -2,6 +2,8 @@ package edu.ufl.cise.cnt5106c.message;
 
 import java.io.Serializable;
 
+import edu.ufl.cise.cnt5106c.payload.PayLoad;
+
 public class Message implements Serializable {
 
 	/**
@@ -12,13 +14,13 @@ public class Message implements Serializable {
 	// Message Length in bytes excluding the length of message length field
 	private int msgLength;
 	private MessageType msgType;
-	private PayloadTemp msgPayload;
-	
+	private PayLoad msgPayload;
+
 	public Message() {
-		
+
 	}
 
-	public Message(MessageType type, PayloadTemp payload) {
+	public Message(MessageType type, PayLoad payload) {
 		this.msgType = type;
 		this.msgPayload = payload;
 		if (payload == null) {
@@ -29,7 +31,7 @@ public class Message implements Serializable {
 	}
 
 	public int getMsgLength() {
-		return msgLength;
+		return this.msgLength;
 	}
 
 	public void setMsgLength(int msgLength) {
@@ -37,18 +39,18 @@ public class Message implements Serializable {
 	}
 
 	public MessageType getMsgType() {
-		return msgType;
+		return this.msgType;
 	}
 
 	public void setMsgType(MessageType msgType) {
 		this.msgType = msgType;
 	}
 
-	public PayloadTemp getMsgPayload() {
-		return msgPayload;
+	public PayLoad getMsgPayload() {
+		return this.msgPayload;
 	}
 
-	public void setMsgPayload(PayloadTemp msgPayload) {
+	public void setMsgPayload(PayLoad msgPayload) {
 		this.msgPayload = msgPayload;
 	}
 }

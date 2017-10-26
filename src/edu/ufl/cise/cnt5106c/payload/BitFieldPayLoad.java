@@ -18,11 +18,27 @@ public class BitFieldPayLoad extends PayLoad {
 	// A four byte field
 	private byte[] bitfield;
 
+	/**
+	 * @param bitfield
+	 */
 	public BitFieldPayLoad(byte[] bitfield) {
+		super();
 		this.bitfield = bitfield;
 	}
 
+	/**
+	 * @return the bitfield
+	 */
 	public byte[] getBitfield() {
 		return bitfield;
 	}
+
+	/**
+	 * @param bitfield
+	 *            the bitfield to set
+	 */
+	public void setBitfield(byte[] bitfield) {
+		this.bitfield = bitfield;
+	}
+
 }

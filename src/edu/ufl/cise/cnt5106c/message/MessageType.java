@@ -12,11 +12,17 @@ public enum MessageType {
 
 	private byte val;
 
-	MessageType(int val) {
+	/**
+	 * @param val
+	 */
+	private MessageType(int val) {
 		this.val = (byte) val;
 	}
 
+	/**
+	 * @return the val
+	 */
 	public byte getVal() {
-		return val;
+		return this.val;
 	}
 }

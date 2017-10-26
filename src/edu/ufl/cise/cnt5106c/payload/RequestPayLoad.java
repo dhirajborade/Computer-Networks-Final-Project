@@ -12,14 +12,31 @@ public class RequestPayLoad extends PayLoad {
 	 * 
 	 */
 	private static final long serialVersionUID = 9208727206802180498L;
+
 	// 4-byte piece index field we will index from -2,147,483,648 to 2,147,483,647
 	private int index;
 
-	public RequestPayLoad(int idx) {
-		this.index = idx;
+	/**
+	 * @param index
+	 */
+	public RequestPayLoad(int index) {
+		super();
+		this.index = index;
 	}
 
+	/**
+	 * @return the index
+	 */
 	public int getIndex() {
-		return this.index;
+		return index;
 	}
+
+	/**
+	 * @param index
+	 *            the index to set
+	 */
+	public void setIndex(int index) {
+		this.index = index;
+	}
+
 }

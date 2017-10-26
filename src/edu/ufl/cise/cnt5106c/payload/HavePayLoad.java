@@ -3,13 +3,11 @@
  */
 package edu.ufl.cise.cnt5106c.payload;
 
-import edu.ufl.cise.cnt5106c.message.PayloadTemp;
-
 /**
  * @author Dhiraj Borade
  *
  */
-public class HavePayLoad extends PayloadTemp {
+public class HavePayLoad extends PayLoad {
 	/**
 	 * 
 	 */
@@ -17,11 +15,27 @@ public class HavePayLoad extends PayloadTemp {
 
 	private int index; // 4-byte piece index field we will index from -2,147,483,648 to 2,147,483,647
 
-	public HavePayLoad(int idx) {
-		this.index = idx;
+	/**
+	 * @param index
+	 */
+	public HavePayLoad(int index) {
+		super();
+		this.index = index;
 	}
 
+	/**
+	 * @return the index
+	 */
 	public int getIndex() {
-		return this.index;
+		return index;
 	}
+
+	/**
+	 * @param index
+	 *            the index to set
+	 */
+	public void setIndex(int index) {
+		this.index = index;
+	}
+
 }
