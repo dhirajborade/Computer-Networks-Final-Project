@@ -21,17 +21,8 @@ import edu.ufl.cise.cnt5106c.payload.PiecePayLoad;
  */
 public class FileManager {
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
-	}
-
 	/** File pieces owned by the peer */
 	private static boolean[] filePiecesOwned;
-
 	/**
 	 * Table to keep track of requested file pieces at any instant so that redundant
 	 * requests are not made
@@ -41,51 +32,27 @@ public class FileManager {
 	/** Number of file pieces the file can be broken into */
 	private static final int noOfFilePieces = (int) Math
 			.ceil((double) CommonProperties.getFileSize() / CommonProperties.getPieceSize());
-
 	/** File pieces available by the peer */
 	private static int noOfPiecesAvailable = 0;
-
 	private static String directory = null;
 	private static String fileName = CommonProperties.getFileName();
 	private static int fileSize = CommonProperties.getFileSize();
 	private static File file = null;
 
 	/**
-	 * Creates bitfield first time during initialization for the peer
-	 * 
-	 * @param pieces
-	 *            boolean representation of pieces available
-	 * @return byte format of the pieces available
-	 * @throws Exception
-	 */
-	public synchronized static byte[] getBitField() throws Exception {
-
-		int size = (int) Math.ceil((double) noOfFilePieces / 8);
-		byte[] bitfield = new byte[size];
-
-		int counter = 0;
-		for (int i = 0; i < noOfFilePieces; i = i + 8) {
-			bitfield[counter++] = FileUtilities.boolToByte(
-					Arrays.copyOfRange(filePiecesOwned, i, (noOfFilePieces > i + 8) ? i + 8 : noOfFilePieces));
-		}
-
-		return bitfield;
-	}
-
-	/**
 	 * Constructor for the instance of FileManager
 	 * 
-	 * @param peerid
+	 * @param peerId
 	 *            specifies the peerid for the file manager
-	 * @param has
+	 * @param hasFile
 	 *            specifies if the peer has the file
 	 */
-	public FileManager(int peerid, boolean has) {
-		directory = "peer_" + peerid + "/";
+	public FileManager(int peerId, boolean hasFile) {
+		directory = "peer_" + peerId + "/";
 
 		filePiecesOwned = new boolean[noOfFilePieces];
 
-		if (has) {
+		if (hasFile) {
 			Arrays.fill(filePiecesOwned, true);
 			noOfPiecesAvailable = noOfFilePieces;
 		}
@@ -109,6 +76,160 @@ public class FileManager {
 			}
 		}
 
+	}
+
+	/**
+	 * @return the filePiecesOwned
+	 */
+	public static boolean[] getFilePiecesOwned() {
+		return filePiecesOwned;
+	}
+
+	/**
+	 * @param filePiecesOwned
+	 *            the filePiecesOwned to set
+	 */
+	public static void setFilePiecesOwned(boolean[] filePiecesOwned) {
+		FileManager.filePiecesOwned = filePiecesOwned;
+	}
+
+	/**
+	 * @return the requestedPieces
+	 */
+	public static Hashtable<Integer, Integer> getRequestedPieces() {
+		return requestedPieces;
+	}
+
+	/**
+	 * @param requestedPieces
+	 *            the requestedPieces to set
+	 */
+	public static void setRequestedPieces(Hashtable<Integer, Integer> requestedPieces) {
+		FileManager.requestedPieces = requestedPieces;
+	}
+
+	/**
+	 * @return the noOfPiecesAvailable
+	 */
+	public static int getNoOfPiecesAvailable() {
+		return noOfPiecesAvailable;
+	}
+
+	/**
+	 * @param noOfPiecesAvailable
+	 *            the noOfPiecesAvailable to set
+	 */
+	public static void setNoOfPiecesAvailable(int noOfPiecesAvailable) {
+		FileManager.noOfPiecesAvailable = noOfPiecesAvailable;
+	}
+
+	/**
+	 * @return the directory
+	 */
+	public static String getDirectory() {
+		return directory;
+	}
+
+	/**
+	 * @param directory
+	 *            the directory to set
+	 */
+	public static void setDirectory(String directory) {
+		FileManager.directory = directory;
+	}
+
+	/**
+	 * @return the fileName
+	 */
+	public static String getFileName() {
+		return fileName;
+	}
+
+	/**
+	 * @param fileName
+	 *            the fileName to set
+	 */
+	public static void setFileName(String fileName) {
+		FileManager.fileName = fileName;
+	}
+
+	/**
+	 * @return the fileSize
+	 */
+	public static int getFileSize() {
+		return fileSize;
+	}
+
+	/**
+	 * @param fileSize
+	 *            the fileSize to set
+	 */
+	public static void setFileSize(int fileSize) {
+		FileManager.fileSize = fileSize;
+	}
+
+	/**
+	 * @return the file
+	 */
+	public static File getFile() {
+		return file;
+	}
+
+	/**
+	 * @param file
+	 *            the file to set
+	 */
+	public static void setFile(File file) {
+		FileManager.file = file;
+	}
+
+	/**
+	 * @return the nooffilepieces
+	 */
+	public static int getNooffilepieces() {
+		return noOfFilePieces;
+	}
+
+	/**
+	 * @param index
+	 *            The index of the piece we need to check
+	 * @return true if the piece is not available
+	 */
+	public static boolean isInteresting(int index) {
+		return filePiecesOwned[index] ? true : false;
+	}
+
+	/**
+	 * @return true if the file has all the file pieces/complete file
+	 */
+	public static synchronized boolean hasCompleteFile() {
+		return noOfPiecesAvailable == noOfFilePieces ? true : false;
+	}
+
+	/**
+	 * Creates bitfield first time during initialization for the peer
+	 * 
+	 * @param pieces
+	 *            boolean representation of pieces available
+	 * @return byte format of the pieces available
+	 * @throws Exception
+	 */
+	public static synchronized byte[] getBitField() throws Exception {
+		int size = (int) Math.ceil((double) noOfFilePieces / 8);
+		byte[] bitfield = new byte[size];
+		int counter = 0;
+		int indexI = 0;
+		while (indexI < noOfFilePieces) {
+			int temp;
+			if (noOfFilePieces > indexI + 8) {
+				temp = indexI + 8;
+			} else {
+				temp = noOfFilePieces;
+			}
+			bitfield[counter++] = FileUtilities.boolToByte(Arrays.copyOfRange(filePiecesOwned, indexI, temp));
+			indexI = indexI + 8;
+		}
+		return bitfield;
 	}
 
 	/**
@@ -171,12 +292,16 @@ public class FileManager {
 		boolean flag = false;
 		int size = (int) Math.ceil((double) noOfFilePieces / 8);
 		byte[] interesting = new byte[size];
-		if (neighborBitfield == null)
+		if (neighborBitfield == null) {
 			return flag;
-		for (int i = 0; i < bitfield.length; i++) {
-			interesting[i] = (byte) ((bitfield[i] ^ neighborBitfield[i]) & neighborBitfield[i]);
-			if (interesting[i] != 0)
+		}
+		int indexI = 0;
+		while (indexI < bitfield.length) {
+			interesting[indexI] = (byte) ((bitfield[indexI] ^ neighborBitfield[indexI]) & neighborBitfield[indexI]);
+			if (interesting[indexI] != 0) {
 				flag = true;
+			}
+			indexI++;
 		}
 		return flag;
 	}
@@ -197,69 +322,29 @@ public class FileManager {
 		boolean[] interestingPieces = new boolean[noOfFilePieces];
 		int finLength;
 
-		if (size > 1)
-			finLength = (noOfFilePieces % (8));
-		else
-			finLength = noOfFilePieces;
+		finLength = size > 1 ? noOfFilePieces % (8) : noOfFilePieces;
 
 		int start, end;
-		for (int i = 0, j = 0; i < bitfield.length; i++) {
-			interesting[i] = (byte) ((bitfield[i] ^ neighborBitfield[i]) & neighborBitfield[i]);
 
-			if (i == size - 1) {
-				start = 8 - finLength;
-				end = finLength;
-			} else {
-				start = 0;
-				end = 8;
-			}
-			boolean[] x = FileUtilities.byteToBoolean(interesting[i]);
-			System.arraycopy(x, start, interestingPieces, j, end);
-
-			if (j + 8 < noOfFilePieces)
-				j = j + 8;
-			else
-				j = noOfFilePieces - finLength;
-
+		int indexI = 0, indexJ = 0;
+		while (indexI < bitfield.length) {
+			interesting[indexI] = (byte) ((bitfield[indexI] ^ neighborBitfield[indexI]) & neighborBitfield[indexI]);
+			start = indexI == size - 1 ? 8 - finLength : 0;
+			end = indexI == size - 1 ? finLength : 8;
+			boolean[] x = FileUtilities.byteToBoolean(interesting[indexI]);
+			System.arraycopy(x, start, interestingPieces, indexJ, end);
+			indexJ = indexJ + 8 < noOfFilePieces ? indexJ + 8 : noOfFilePieces - finLength;
+			indexI++;
 		}
-		// System.out.println("Interesting pieces in peer "+nPID+" :
-		// "+Arrays.toString(interestingPieces));
-		for (int i = 0; i < noOfFilePieces; i++) {
-			if (interestingPieces[i] == true && !requestedPieces.containsKey(i)) {
-				requestedPieces.put(i, i);
-				return i;
+		int indexK = 0;
+		while (indexK < noOfFilePieces) {
+			if (interestingPieces[indexK] == true && !requestedPieces.containsKey(indexK)) {
+				requestedPieces.put(indexK, indexK);
+				return indexK;
 			}
+			indexK++;
 		}
 		return -1;
-	}
-
-	/**
-	 * @param index
-	 *            The index of the piece we need to check
-	 * @return true if the piece is not available
-	 */
-	public static boolean isInteresting(int index) {
-		if (filePiecesOwned[index]) {
-			return true;
-		}
-		return false;
-	}
-
-	/**
-	 * @return true if the file has all the file pieces/complete file
-	 */
-	public static synchronized boolean hasCompleteFile() {
-		if (noOfPiecesAvailable == noOfFilePieces)
-			return true;
-		return false;
-	}
-
-	public static int getNumberOfPieces() {
-		return noOfPiecesAvailable;
-	}
-
-	public static int total() {
-		return noOfFilePieces;
 	}
 
 	public static void checker() {
@@ -280,6 +365,14 @@ public class FileManager {
 				}
 			}
 		}).start();
+
+	}
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
 
 	}
 

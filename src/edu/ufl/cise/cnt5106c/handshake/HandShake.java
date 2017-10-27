@@ -20,7 +20,6 @@ public class HandShake implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -1482860868859618509L;
-
 	static final String Header = "P2PFILESHARINGPROJ";
 	private int peerID;
 

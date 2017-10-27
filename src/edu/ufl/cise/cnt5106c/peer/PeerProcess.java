@@ -45,12 +45,12 @@ public class PeerProcess {
                 }
                 else { 
                     peersToConnectTo.add (peer);
-                    LogHelper.getLogger().conf ("Read configuration for peer: " + peer);
+                    //LogHelper.getLogger().conf ("Read configuration for peer: " + peer);
                 }
             }
         }
         catch (Exception ex) {
-            LogHelper.getLogger().severe (ex);
+            //LogHelper.getLogger().severe (ex);
             return;
         }
         finally {
@@ -66,7 +66,7 @@ public class PeerProcess {
         t.setName ("peerProcess-" + peerId);
         t.start();
 
-        LogHelper.getLogger().debug ("Connecting to " + peersToConnectTo.size() + " peers.");
+        //LogHelper.getLogger().debug ("Connecting to " + peersToConnectTo.size() + " peers.");
         peerProc.connectToPeers (peersToConnectTo);
         try {
             Thread.sleep(5);

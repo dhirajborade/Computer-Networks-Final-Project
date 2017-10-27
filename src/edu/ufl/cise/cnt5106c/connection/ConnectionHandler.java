@@ -277,8 +277,8 @@ public class ConnectionHandler extends Thread {
 								piecesDownloaded++;
 								Logger.fileDownloading(neighboringPeer.getPeerId(),
 										((PiecePayLoad) receivedMsg.getMsgPayload()).getIndex(),
-										FileManager.getNumberOfPieces());
-								if (FileManager.total() == FileManager.getNumberOfPieces())
+										FileManager.getNoOfPiecesAvailable());
+								if (FileManager.getNooffilepieces() == FileManager.getNoOfPiecesAvailable())
 									Logger.fileDownloadCompleted();
 
 								if (unChokeFlag)
@@ -297,7 +297,6 @@ public class ConnectionHandler extends Thread {
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
-					// }
 				}
 			}
 
