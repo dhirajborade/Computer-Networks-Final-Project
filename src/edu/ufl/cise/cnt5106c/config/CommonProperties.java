@@ -17,30 +17,23 @@ public class CommonProperties {
 		try {
 			BufferedReader in = new BufferedReader(new FileReader("Common.cfg"));
 			String line;
-			while ((line = in.readLine()) != null) {
+			for (line = in.readLine(); line != null;) {
 				String[] config = line.split(" ");
 				String name = config[0];
 				String value = config[1];
 
-				switch (name) {
-				case "NumberOfPreferredNeighbors":
+				if (name == "NumberOfPreferredNeighbors") {
 					numberOfPreferredNeighbors = Integer.parseInt(value) + 1;
-					break;
-				case "UnchokingInterval":
+				} else if (name == "UnchokingInterval") {
 					unchokingInterval = Integer.parseInt(value);
-					break;
-				case "OptimisticUnchokingInterval":
+				} else if (name == "OptimisticUnchokingInterval") {
 					optimisticUnchokingInterval = Integer.parseInt(value);
-					break;
-				case "FileName":
+				} else if (name == "FileName") {
 					fileName = value;
-					break;
-				case "FileSize":
+				} else if (name == "FileSize") {
 					fileSize = Integer.parseInt(value);
-					break;
-				case "PieceSize":
+				} else if (name == "PieceSize") {
 					pieceSize = Integer.parseInt(value);
-					break;
 				}
 			}
 			in.close();
