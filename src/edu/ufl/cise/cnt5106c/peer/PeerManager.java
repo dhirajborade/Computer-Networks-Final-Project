@@ -8,10 +8,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
-
-import com.sun.corba.se.impl.orb.ORBConfiguratorImpl.ConfigParser;
 
 import edu.ufl.cise.cnt5106c.config.CommonProperties;
 import edu.ufl.cise.cnt5106c.file.FileManager;
@@ -26,190 +24,348 @@ import edu.ufl.cise.cnt5106c.payload.HavePayLoad;
  */
 public class PeerManager extends Thread {
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
-	}
-	
-private static ServerSocket sSocket;
-	
-	//Stores the peer process objects in a map
-	private static HashMap<Integer,Peer> peers;
-
-	private static ArrayList<Peer> interested = new ArrayList<Peer>();
-	
-	private static ArrayList<Peer> kPeers;
-	
-	private static Peer optUnchokedPeer;
-	
+	private ServerSocket socketPort;
 	private Peer hostPeer;
-		
-	public PeerManager(){}
-	
-	public PeerManager(ServerSocket s, Peer host, HashMap<Integer,Peer> prs){
-		sSocket = s;
-		hostPeer = host;
-		peers = prs;
+
+	// Stores the peer process objects in a map
+	private HashMap<Integer, Peer> peers;
+	private static ArrayList<Peer> interestedPeers = new ArrayList<Peer>();
+	private static ArrayList<Peer> kNeighborPeers;
+	private static Peer optimizedUnchokedPeer;
+
+	public PeerManager() {
+
 	}
-	
-	public void add(Peer i){
-		interested.add(i);
+
+	/**
+	 * @param sSocket
+	 * @param peers
+	 * @param hostPeer
+	 */
+	public PeerManager(ServerSocket sSocket, Peer hostPeer, HashMap<Integer, Peer> peers) {
+		super();
+		this.socketPort = sSocket;
+		this.peers = peers;
+		this.hostPeer = hostPeer;
 	}
-	
-	public void remove(Peer i) 
-	{
-		interested.remove(i);
+
+	/**
+	 * @return the socketPort
+	 */
+	public ServerSocket getSocketPort() {
+		return socketPort;
 	}
-	
-	public void setSocket(ServerSocket s){
-		sSocket = s;
+
+	/**
+	 * @param socketPort
+	 *            the socketPort to set
+	 */
+	public void setSocketPort(ServerSocket socketPort) {
+		this.socketPort = socketPort;
 	}
-	
-	public void kPreferredPeers(){
-		
-		long timeout = CommonProperties.getUnchokingInterval()*1000;
-		new Thread(){
-			public void run(){
-				try{
-					// reselecting k preferred peers in time intervals of 'UnchokingInterval' from config
-					do{
-						synchronized(interested){
+
+	/**
+	 * @return the hostPeer
+	 */
+	public Peer getHostPeer() {
+		return hostPeer;
+	}
+
+	/**
+	 * @param hostPeer
+	 *            the hostPeer to set
+	 */
+	public void setHostPeer(Peer hostPeer) {
+		this.hostPeer = hostPeer;
+	}
+
+	/**
+	 * @return the peers
+	 */
+	public HashMap<Integer, Peer> getPeers() {
+		return peers;
+	}
+
+	/**
+	 * @param peers
+	 *            the peers to set
+	 */
+	public void setPeers(HashMap<Integer, Peer> peers) {
+		this.peers = peers;
+	}
+
+	/**
+	 * @return the interestedPeers
+	 */
+	public static ArrayList<Peer> getInterestedPeers() {
+		return interestedPeers;
+	}
+
+	/**
+	 * @param interestedPeers
+	 *            the interestedPeers to set
+	 */
+	public static void setInterestedPeers(ArrayList<Peer> interestedPeers) {
+		PeerManager.interestedPeers = interestedPeers;
+	}
+
+	/**
+	 * @return the kNeighborPeers
+	 */
+	public static ArrayList<Peer> getkNeighborPeers() {
+		return kNeighborPeers;
+	}
+
+	/**
+	 * @param kNeighborPeers
+	 *            the kNeighborPeers to set
+	 */
+	public static void setkNeighborPeers(ArrayList<Peer> kNeighborPeers) {
+		PeerManager.kNeighborPeers = kNeighborPeers;
+	}
+
+	/**
+	 * @return the optimizedUnchokedPeer
+	 */
+	public static Peer getOptimizedUnchokedPeer() {
+		return optimizedUnchokedPeer;
+	}
+
+	/**
+	 * @param optimizedUnchokedPeer
+	 *            the optimizedUnchokedPeer to set
+	 */
+	public static void setOptimizedUnchokedPeer(Peer optimizedUnchokedPeer) {
+		PeerManager.optimizedUnchokedPeer = optimizedUnchokedPeer;
+	}
+
+	public void add(Peer intPeers) {
+		interestedPeers.add(intPeers);
+	}
+
+	public void remove(Peer intPeers) {
+		interestedPeers.remove(intPeers);
+	}
+
+	public void kPreferredPeers() {
+
+		long timeout = CommonProperties.getUnchokingInterval() * 1000;
+		new Thread() {
+			public void run() {
+				try {
+					// reselecting k preferred peers in time intervals of 'UnchokingInterval' from
+					// config
+
+					synchronized (interestedPeers) {
+						System.out.println("Finding k preferred peers");
+						if (interestedPeers.size() != 0) {
+							kNeighborPeers = new ArrayList<Peer>();
+							// Sorts interested peers with respect to downloading rates only when host does
+							// not have the complete file
+							if (!FileManager.hasCompleteFile()) {
+								interestedPeers.sort(new Comparator<Peer>() {
+									Random r = new Random();
+
+									@Override
+									public int compare(Peer o1, Peer o2) {
+										if (o1.getDownloadSpeed() == o2.getDownloadSpeed())
+											return r.nextInt(2); // Randomly sequencing equal elements
+										return (int) -(o1.getDownloadSpeed() - o2.getDownloadSpeed());
+									}
+								});
+							}
+							Iterator<Peer> it = interestedPeers.iterator();
+							int indexJ = 0;
+							while (indexJ < CommonProperties.getNumberOfPreferredNeighbors() && it.hasNext()) {
+								Peer p = it.next();
+								// chooses peer adds it to k preferred peers list and unchokes them
+								p.getConn().resetPiecesDownloaded();
+								kNeighborPeers.add(p);
+								if (!p.isUnchoked())
+									unChokePeer(p);
+								indexJ++;
+							}
+							ArrayList<Integer> preferredPeers = new ArrayList<Integer>();
+							int indexI = 0;
+							while (indexI < kNeighborPeers.size()) {
+								preferredPeers.add(kNeighborPeers.get(indexI).getPeerId());
+								indexI++;
+							}
+							Logger.preferredNeighbors(preferredPeers);
+							chokePeers();
+						}
+					}
+					Thread.sleep(timeout);
+
+					while (!socketPort.isClosed()) {
+						synchronized (interestedPeers) {
 							System.out.println("Finding k preferred peers");
-							if(interested.size() != 0){
-								kPeers = new ArrayList<Peer>();
-								// Sorts interested peers with respect to downloading rates only when host does not have the complete file
-								if(!FileManager.hasCompleteFile()){
-									interested.sort(new Comparator<Peer>() {
+							if (interestedPeers.size() != 0) {
+								kNeighborPeers = new ArrayList<Peer>();
+								// Sorts interested peers with respect to downloading rates only when host does
+								// not have the complete file
+								if (!FileManager.hasCompleteFile()) {
+									interestedPeers.sort(new Comparator<Peer>() {
 										Random r = new Random();
+
 										@Override
 										public int compare(Peer o1, Peer o2) {
-											if(o1.getDownloadSpeed() == o2.getDownloadSpeed())
-												return r.nextInt(2); //Randomly sequencing equal elements
-											return (int)-(o1.getDownloadSpeed()-o2.getDownloadSpeed());
+											if (o1.getDownloadSpeed() == o2.getDownloadSpeed())
+												return r.nextInt(2); // Randomly sequencing equal elements
+											return (int) -(o1.getDownloadSpeed() - o2.getDownloadSpeed());
 										}
 									});
 								}
-								Iterator<Peer> it = interested.iterator();
-								for(int i=0; i<ConfigParser.getNumberOfPreferredNeighbors()
-										&& it.hasNext();i++){
+								Iterator<Peer> it = interestedPeers.iterator();
+								int indexJ = 0;
+								while (indexJ < CommonProperties.getNumberOfPreferredNeighbors() && it.hasNext()) {
 									Peer p = it.next();
 									// chooses peer adds it to k preferred peers list and unchokes them
 									p.getConn().resetPiecesDownloaded();
-									kPeers.add(p);
-									if(!p.isUnchoked())
-										unchokePeer(p);
+									kNeighborPeers.add(p);
+									if (!p.isUnchoked())
+										unChokePeer(p);
+									indexJ++;
 								}
 								ArrayList<Integer> preferredPeers = new ArrayList<Integer>();
-								for (int i = 0; i < kPeers.size(); i ++) {
-									preferredPeers.add(kPeers.get(i).getPeerId());
+								int indexI = 0;
+								while (indexI < kNeighborPeers.size()) {
+									preferredPeers.add(kNeighborPeers.get(indexI).getPeerId());
+									indexI++;
 								}
 								Logger.preferredNeighbors(preferredPeers);
 								chokePeers();
 							}
 						}
 						Thread.sleep(timeout);
-					}while(!sSocket.isClosed());
-				}catch(Exception e){
+					}
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
 		}.start();
-		
+
 	}
-	
+
 	/**
 	 * Optimistically unchokes a peer from interested peer list at regular intervals
 	 */
-	public void optUnchokePeer(){
-		//time interval in seconds to find and unchoke next optimistic peer
-		long timeout = ConfigParser.getOptimisticUnchokingInterval()*1000;
-		new Thread(){
-			public void run(){
-				try{
-					// reselecting optimistic peer in time intervals of 'OptimisticUnchokingInterval' from config
-					do{
-						synchronized(interested){
-							System.out.println("Finding optimistic peer");
+	public void unChokeOptimisticPeer() {
+		// time interval in seconds to find and unchoke next optimistic peer
+		long timeout = CommonProperties.getOptimisticUnchokingInterval() * 1000;
+		new Thread() {
+			public void run() {
+				try {
+					// reselecting optimistic peer in time intervals of
+					// 'OptimisticUnchokingInterval' from config
+
+					synchronized (interestedPeers) {
+						System.out.println("Finding Optimistic Peer");
+						Peer p;
+						Random r = new Random();
+						Peer[] prs = interestedPeers.toArray(new Peer[interestedPeers.size()]);
+						if (interestedPeers.size() != 0) {
+							// Selects a choked interesting peer
+							p = prs[r.nextInt(prs.length)];
+							while (p.isUnchoked()) {
+								p = prs[r.nextInt(prs.length)];
+							}
+							optimizedUnchokedPeer = p;
+							unChokePeer(p);
+							Logger.optUnchoke(p.getPeerId());
+						}
+					}
+					Thread.sleep(timeout);
+
+					while (!socketPort.isClosed()) {
+						synchronized (interestedPeers) {
+							System.out.println("Finding Optimistic Peer");
 							Peer p;
 							Random r = new Random();
-							Peer[] prs = interested.toArray(new Peer[interested.size()]);
-							if(interested.size() != 0){
-								do{
+							Peer[] prs = interestedPeers.toArray(new Peer[interestedPeers.size()]);
+							if (interestedPeers.size() != 0) {
+								// Selects a choked interesting peer
+								p = prs[r.nextInt(prs.length)];
+								while (p.isUnchoked()) {
 									p = prs[r.nextInt(prs.length)];
-								}while(p.isUnchoked()); //Selects a choked interesting peer
-								optUnchokedPeer = p;
-								unchokePeer(p);
+								}
+								optimizedUnchokedPeer = p;
+								unChokePeer(p);
 								Logger.optUnchoke(p.getPeerId());
 							}
 						}
 						Thread.sleep(timeout);
-					}while(!sSocket.isClosed());
-				}catch(Exception e){
+					}
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
 		}.start();
-		
+
 	}
-	
+
 	/**
 	 * Unchokes a peer by sending unchoke message to the peer
 	 * 
-	 * @param p peer to be unchoked
+	 * @param p
+	 *            peer to be unchoked
 	 */
-	public void unchokePeer(Peer p){
-		
+	public void unChokePeer(Peer p) {
+
 		p.unChoke(true);
-		//send unchoke message to peer p
+		// send unchoke message to peer p
 		Message msgUnchoke = new Message(MessageType.UNCHOKE, null);
 		p.getConn().sendMessage(msgUnchoke);
 		// log here or after receiving the message
-		Logger.unchoked(p.getPeerId());
+		Logger.peerUnchoked(p.getPeerId());
 	}
-	
+
 	/**
-	 * Chokes all peers which are neither k preferred peers nor optimistically unchoked peer
+	 * Chokes all peers which are neither k preferred peers nor optimistically
+	 * unchoked peer
 	 */
-	public void chokePeers(){
-		//choke all other peers not in map kPeers
-		Iterator itr = peers.entrySet().iterator();
-		while(itr.hasNext()){
-			Map.Entry entry = (Map.Entry)itr.next();
-			Peer temp =(Peer)entry.getValue();
-			if(!kPeers.contains(temp) && temp != optUnchokedPeer && temp.getConn() != null){
+	public void chokePeers() {
+		// choke all other peers not in map kPeers
+		Iterator<Entry<Integer, Peer>> itr = peers.entrySet().iterator();
+		while (itr.hasNext()) {
+			Entry<Integer, Peer> entry = itr.next();
+			Peer temp = (Peer) entry.getValue();
+			if (!kNeighborPeers.contains(temp) && temp != optimizedUnchokedPeer && temp.getConn() != null) {
 				temp.unChoke(false);
 				Message chokeMsg = new Message(MessageType.CHOKE, null);
 				temp.getConn().sendMessage(chokeMsg);
 				// TODO call method to stop sending data to neighbor
-				Logger.choked(temp.getPeerId());
+				Logger.peerChoked(temp.getPeerId());
 			}
 		}
 	}
-	
-	public void run(){
+
+	public void run() {
 		kPreferredPeers();
-		optUnchokePeer();
+		unChokeOptimisticPeer();
 	}
-	
-	/*public HashMap<Integer, Peer> getPeerList()
-	{
-		return peers;
-	}*/
-	
-	public void sendHaveAll(int index)
-	{
+
+	/*
+	 * public HashMap<Integer, Peer> getPeerList() { return peers; }
+	 */
+
+	public void sendHaveAll(int index) {
 		Message have = new Message(MessageType.HAVE, new HavePayLoad(index));
-	
-		Iterator itr = peers.entrySet().iterator();
-		while(itr.hasNext())
-		{
-			Map.Entry entry = (Map.Entry)itr.next();
-			Peer temp =(Peer)entry.getValue();
+
+		Iterator<Entry<Integer, Peer>> itr = peers.entrySet().iterator();
+		while (itr.hasNext()) {
+			Entry<Integer, Peer> entry = itr.next();
+			Peer temp = entry.getValue();
 			temp.getConn().sendMessage(have);
 		}
+	}
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
 	}
 
 }
