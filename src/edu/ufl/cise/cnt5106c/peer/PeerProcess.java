@@ -17,8 +17,6 @@ public class PeerProcess {
 		String ipAddress = "localhost";
 		int portNumber = 6008;
 		boolean hasFile = false;
-
-		// Read properties
 		Reader commonPropertiesReader = null;
 		Reader peerInfoReader = null;
 		PeerInfo peerInfo = new PeerInfo();
@@ -34,12 +32,9 @@ public class PeerProcess {
 					ipAddress = peer.getPeerAddress();
 					portNumber = peer.getPeerPort();
 					hasFile = peer.isHasFile();
-					// A peer connects only to the previously defined peers,
-					// therefore I can stop parsing here.
 					break;
 				} else {
 					peersToConnectTo.add(peer);
-					// LogHelper.getLogger().conf ("Read configuration for peer: " + peer);
 				}
 			}
 		} catch (Exception e) {
