@@ -4,17 +4,25 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
+import java.text.ParseException;
+
+/**
+ * @author Prajakta Karandikar
+ *
+ */
 
 public class CommonProperties {
 
+	public static final String CONFIG_FILE_NAME = "Common.cfg";
 	private static int numberOfPreferredNeighbors;
 	private static int unchokingInterval;
 	private static int optimisticUnchokingInterval;
 	private static String fileName;
 	private static int fileSize;
 	private static int pieceSize;
-
-	static {
+	
+	public void read(Reader reader) throws FileNotFoundException, IOException, ParseException {
 		try {
 			BufferedReader in = new BufferedReader(new FileReader("Common.cfg"));
 			String line;

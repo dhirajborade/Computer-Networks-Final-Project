@@ -4,6 +4,11 @@ import java.io.Serializable;
 
 import edu.ufl.cise.cnt5106c.payload.PayLoad;
 
+/**
+ * @author Prajakta Karandikar
+ *
+ */
+
 public class Message implements Serializable {
 
 	/**

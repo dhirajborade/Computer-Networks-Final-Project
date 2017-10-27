@@ -3,75 +3,71 @@ package edu.ufl.cise.cnt5106c.peer;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.Properties;
+import java.util.Vector;
 
 import edu.ufl.cise.cnt5106c.config.CommonProperties;
 import edu.ufl.cise.cnt5106c.config.PeerInfo;
 import edu.ufl.cise.cnt5106c.config.RemotePeerInfo;
 
 public class PeerProcess {
-	
-	public static void main (String[] args) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
-//        if (args.length != 1) {
-//            LogHelper.getLogger().severe("the number of arguments passed to the program is " + args.length + " while it should be 1.\nUsage: java peerProcess peerId");
-//        }
-        final int peerId = Integer.parseInt(args[0]);
-        //LogHelper.configure(peerId);
-        String address = "localhost";
-        int port = 6008;
-        boolean hasFile = false;
 
-        // Read properties
-        Reader commReader = null;
-        Reader peerReader = null;
-        Properties commProp = null;
-        PeerInfo peerInfo = new PeerInfo();
-        Collection<RemotePeerInfo> peersToConnectTo = new LinkedList<>();
-        try {
-            commReader = new FileReader (CommonProperties.CONFIG_FILE_NAME);
-            peerReader = new FileReader (PeerInfo.CONFIG_FILE_NAME);
-            commProp = CommonProperties.read (commReader);
-            peerInfo.read (peerReader);
-            for (RemotePeerInfo peer : peerInfo.getPeerInfo()) {
-                if (peerId == peer.getPeerId()) {
-                    address = peer.getPeerAddress();
-                    port = peer.getPort();
-                    hasFile = peer.hasFile();
-                    // A peer connects only to the previously defined peers,
-                    // therefore I can stop parsing here.
-                    break;
-                }
-                else { 
-                    peersToConnectTo.add (peer);
-                    //LogHelper.getLogger().conf ("Read configuration for peer: " + peer);
-                }
-            }
-        }
-        catch (Exception ex) {
-            //LogHelper.getLogger().severe (ex);
-            return;
-        }
-        finally {
-            try { commReader.close(); }
-            catch (Exception e) {}
-            try { peerReader.close(); }
-            catch (Exception e) {}
-        }
+	public static void main(String[] args)
+			throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+		final int peerId = Integer.parseInt(args[0]);
+		String ipAddress = "localhost";
+		int portNumber = 6008;
+		boolean hasFile = false;
 
-        Process peerProc = new Process (peerId, address, port, hasFile, peerInfo.getPeerInfo(), commProp);
-        peerProc.init();
-        Thread t = new Thread (peerProc);
-        t.setName ("peerProcess-" + peerId);
-        t.start();
+		// Read properties
+		Reader commonPropertiesReader = null;
+		Reader peerInfoReader = null;
+		PeerInfo peerInfo = new PeerInfo();
+		CommonProperties commInfo = new CommonProperties();
+		Vector<RemotePeerInfo> peersToConnectTo = new Vector<RemotePeerInfo>();
+		try {
+			commonPropertiesReader = new FileReader(CommonProperties.CONFIG_FILE_NAME);
+			peerInfoReader = new FileReader(PeerInfo.CONFIG_FILE_NAME);
+			commInfo.read(commonPropertiesReader);
+			peerInfo.read(peerInfoReader);
+			for (RemotePeerInfo peer : peerInfo.getPeerInfo()) {
+				if (peerId == peer.getPeerId()) {
+					ipAddress = peer.getPeerAddress();
+					portNumber = peer.getPeerPort();
+					hasFile = peer.isHasFile();
+					// A peer connects only to the previously defined peers,
+					// therefore I can stop parsing here.
+					break;
+				} else {
+					peersToConnectTo.add(peer);
+					// LogHelper.getLogger().conf ("Read configuration for peer: " + peer);
+				}
+			}
+		} catch (Exception e) {
+			System.out.println(e.toString());
+			return;
+		} finally {
+			try {
+				commonPropertiesReader.close();
+			} catch (Exception e) {
+				System.out.println(e.toString());
+			}
+			try {
+				peerInfoReader.close();
+			} catch (Exception e) {
+				System.out.println(e.toString());
+			}
+		}
 
-        //LogHelper.getLogger().debug ("Connecting to " + peersToConnectTo.size() + " peers.");
-        peerProc.connectToPeers (peersToConnectTo);
-        try {
-            Thread.sleep(5);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
+		Process peerProcess = new Process(peerId, ipAddress, portNumber, hasFile, commInfo);
+		peerProcess.initialize(peerProcess);
+		Thread t = new Thread(peerProcess);
+		t.setName("peerProcess-" + peerId);
+		t.start();
+
+		try {
+			Thread.sleep(5);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
 }

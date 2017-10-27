@@ -24,7 +24,7 @@ import edu.ufl.cise.cnt5106c.peer.Peer;
 import edu.ufl.cise.cnt5106c.peer.PeerManager;
 
 /**
- * @author Dhiraj Borade
+ * @author Meghana Ranganath
  *
  */
 public class ConnectionHandler extends Thread {
@@ -58,7 +58,7 @@ public class ConnectionHandler extends Thread {
 		this.streamIn = streamIn;
 		this.streamOut = streamOut;
 		this.pManager = pManager;
-		this.piecesDownloaded = 0;
+		this.piecesDownloaded = piecesDownloaded;
 		try {
 			if (neighboringPeer.getHostSocket() == null) {
 				this.hostPeerStreamIn = null;

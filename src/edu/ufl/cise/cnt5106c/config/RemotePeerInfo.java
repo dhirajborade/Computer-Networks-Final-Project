@@ -18,19 +18,32 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class RemotePeerInfo {
-	public final String peerId;
-	public final String peerAddress;
-	public final String peerPort;
-	public final boolean hasFile;
-	public AtomicInteger bytesDownloadedFrom;
-	public BitSet receivedParts;
+	private final String peerId;
+	private final String peerAddress;
+	private final String peerPort;
+	private final boolean hasFile;
+	private AtomicInteger bytesDownloadedFrom;
+	private BitSet receivedParts;
 	private final AtomicBoolean interested;
 
+	/**
+	 * @param peerId
+	 */
 	public RemotePeerInfo(int peerId) {
 		this(Integer.toString(peerId), "127.0.0.1", "0", false);
 	}
 
+	/**
+	 * @param peerId
+	 * @param peerAddress
+	 * @param peerPort
+	 * @param hasFile
+	 * @param bytesDownloadedFrom
+	 * @param receivedParts
+	 * @param interested
+	 */
 	public RemotePeerInfo(String peerId, String peerAddress, String peerPort, boolean hasFile) {
+		super();
 		this.peerId = peerId;
 		this.peerAddress = peerAddress;
 		this.peerPort = peerPort;
@@ -40,32 +53,77 @@ public class RemotePeerInfo {
 		this.interested = new AtomicBoolean(false);
 	}
 
+	/**
+	 * @return the bytesDownloadedFrom
+	 */
+	public AtomicInteger getBytesDownloadedFrom() {
+		return bytesDownloadedFrom;
+	}
+
+	/**
+	 * @param bytesDownloadedFrom
+	 *            the bytesDownloadedFrom to set
+	 */
+	public void setBytesDownloadedFrom(AtomicInteger bytesDownloadedFrom) {
+		this.bytesDownloadedFrom = bytesDownloadedFrom;
+	}
+
+	/**
+	 * @return the receivedParts
+	 */
+	public BitSet getReceivedParts() {
+		return receivedParts;
+	}
+
+	/**
+	 * @param receivedParts
+	 *            the receivedParts to set
+	 */
+	public void setReceivedParts(BitSet receivedParts) {
+		this.receivedParts = receivedParts;
+	}
+
+	/**
+	 * @return the peerId
+	 */
 	public int getPeerId() {
-		return Integer.parseInt(this.peerId);
+		return Integer.parseInt(peerId);
 	}
 
-	public int getPort() {
-		return Integer.parseInt(this.peerPort);
-	}
-
+	/**
+	 * @return the peerAddress
+	 */
 	public String getPeerAddress() {
-		return this.peerAddress;
+		return peerAddress;
 	}
 
-	public boolean hasFile() {
-		return this.hasFile;
+	/**
+	 * @return the peerPort
+	 */
+	public int getPeerPort() {
+		return Integer.parseInt(peerPort);
 	}
 
+	/**
+	 * @return the hasFile
+	 */
+	public boolean isHasFile() {
+		return hasFile;
+	}
+
+	/**
+	 * @return the interested
+	 */
 	public boolean isInterested() {
-		return this.interested.get();
+		return interested.get();
 	}
 
 	public void setInterested() {
-		this.interested.set(true);
+		interested.set(true);
 	}
 
 	public void setNotIterested() {
-		this.interested.set(false);
+		interested.set(false);
 	}
 
 	@Override
@@ -93,10 +151,10 @@ public class RemotePeerInfo {
 	}
 
 	public static Collection<Integer> toIdSet(Collection<RemotePeerInfo> peers) {
-		Set<Integer> ids = new HashSet<>();
+		Set<Integer> peerIDs = new HashSet<>();
 		for (RemotePeerInfo peer : peers) {
-			ids.add(peer.getPeerId());
+			peerIDs.add(peer.getPeerId());
 		}
-		return ids;
+		return peerIDs;
 	}
 }

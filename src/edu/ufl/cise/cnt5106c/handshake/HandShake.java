@@ -20,7 +20,8 @@ public class HandShake implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -1482860868859618509L;
-	static final String Header = "P2PFILESHARINGPROJ";
+	private static final String Header = "P2PFILESHARINGPROJ";
+	private final String peerMsgHeader;
 	private int peerID;
 
 	/**
@@ -29,6 +30,7 @@ public class HandShake implements Serializable {
 	public HandShake(int peerID) {
 		super();
 		this.peerID = peerID;
+		this.peerMsgHeader = getHeader();
 	}
 
 	/**
@@ -46,6 +48,20 @@ public class HandShake implements Serializable {
 		this.peerID = peerID;
 	}
 
+	/**
+	 * @return the peerMsgHeader
+	 */
+	public String getPeerMsgHeader() {
+		return peerMsgHeader;
+	}
+
+	/**
+	 * @return the header
+	 */
+	public static String getHeader() {
+		return Header;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -54,7 +70,7 @@ public class HandShake implements Serializable {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		return sb.append("[Header :").append(Header).append("]\n").append("[Peer ID: ").append(this.peerID).append("]")
+		return sb.append("[Header :").append(getHeader()).append("]\n").append("[Peer ID: ").append(this.peerID).append("]")
 				.toString();
 	}
 

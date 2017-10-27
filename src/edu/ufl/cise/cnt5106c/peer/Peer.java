@@ -8,7 +8,7 @@ import java.net.Socket;
 import edu.ufl.cise.cnt5106c.connection.ConnectionHandler;
 
 /**
- * @author Dhiraj Borade
+ * @author Meghana Ranganath
  *
  */
 public class Peer {

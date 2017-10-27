@@ -19,7 +19,7 @@ import edu.ufl.cise.cnt5106c.message.MessageType;
 import edu.ufl.cise.cnt5106c.payload.HavePayLoad;
 
 /**
- * @author Dhiraj Borade
+ * @author Meghana Ranganath
  *
  */
 public class PeerManager extends Thread {

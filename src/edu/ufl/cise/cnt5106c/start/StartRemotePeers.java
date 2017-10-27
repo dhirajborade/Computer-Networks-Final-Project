@@ -12,6 +12,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.Vector;
 
+import edu.ufl.cise.cnt5106c.config.PeerInfo;
 import edu.ufl.cise.cnt5106c.config.RemotePeerInfo;
 
 /*
@@ -24,19 +25,25 @@ public class StartRemotePeers {
 
 	public Vector<RemotePeerInfo> peerInfoVector;
 
-	public void getConfiguration() {
-		String st;
+	public void getConfiguration(String[] inputArgs) {
 		peerInfoVector = new Vector<RemotePeerInfo>();
+		final String configFile = (inputArgs.length == 0 ? PeerInfo.CONFIG_FILE_NAME : inputArgs[0]);
+		FileReader inputFileReader = null;
 		try {
-			BufferedReader in = new BufferedReader(new FileReader("PeerInfo.cfg"));
-			while ((st = in.readLine()) != null) {
-				String[] tokens = st.split("\\s+");
-				final boolean hasFile = (tokens[3].trim().compareTo("1") == 0);
-				peerInfoVector.addElement(new RemotePeerInfo(tokens[0], tokens[1], tokens[2], hasFile));
+			inputFileReader = new FileReader(configFile);
+			BufferedReader inputBufferedReader = new BufferedReader(inputFileReader);
+			PeerInfo peerInfo = new PeerInfo();
+			peerInfo.read(inputBufferedReader);
+			peerInfoVector = peerInfo.getPeerInfo();
+			inputBufferedReader.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				inputFileReader.close();
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-			in.close();
-		} catch (Exception ex) {
-			System.out.println(ex.toString());
 		}
 	}
 
@@ -47,7 +54,7 @@ public class StartRemotePeers {
 		// TODO Auto-generated method stub
 		try {
 			StartRemotePeers myStart = new StartRemotePeers();
-			myStart.getConfiguration();
+			myStart.getConfiguration(args);
 
 			// get current path
 			String path = System.getProperty("user.dir");
@@ -55,9 +62,9 @@ public class StartRemotePeers {
 			// start clients at remote hosts
 			for (int i = 0; i < myStart.peerInfoVector.size(); i++) {
 				RemotePeerInfo pInfo = (RemotePeerInfo) myStart.peerInfoVector.elementAt(i);
-				System.out.println("Start remote peer " + pInfo.peerId + " at " + pInfo.peerAddress);
-				Runtime.getRuntime()
-						.exec("ssh " + pInfo.peerAddress + " cd " + path + "; java PeerProcess " + pInfo.peerId);
+				System.out.println("Start remote peer " + pInfo.getPeerId() + " at " + pInfo.getPeerAddress());
+				Runtime.getRuntime().exec(
+						"ssh " + pInfo.getPeerAddress() + " cd " + path + "; java PeerProcess " + pInfo.getPeerId());
 			}
 			System.out.println("Starting all remote peers has done.");
 
