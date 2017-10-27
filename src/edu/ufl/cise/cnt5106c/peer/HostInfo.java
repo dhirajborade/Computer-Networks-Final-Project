@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class HostInfo extends Thread {
 
@@ -13,7 +14,8 @@ public class HostInfo extends Thread {
 	private ObjectOutputStream serverOutputStream;
 	private ObjectInputStream hostInputStream;
 	private int pieces;
-	private PeerInfo peerInfo;
+	
+	ArrayList<Peer> interestedPeers = new ArrayList<Peer>();
 
 
 	public Peer getHostPeer() {
@@ -95,7 +97,52 @@ public class HostInfo extends Thread {
 		
 	}
 	
-	
+	public void message(){
+		new Thread(){
+			public void run(){
+				Message message= null;//message 
+				
+				message= hostInputStream.readObject();
+				
+				if(message!=null){
+					if(message.getMsgType().equals(HAVE)){
+						HavePayload payload = (HavePayload)(message.payload);
+						//TO BE IMPLEMENTED
+					}
+					
+					else if(message.getMsgType().equals(CHOKE)){
+						//TO BE IMPLEMENTED 
+					}
+					
+					else if(message.getMsgType().equals(UNCHOKE)){
+						//TO BE IMPLEMENTED
+					}
+					else if(message.getMsgType().equals(REQUEST)){
+						int requestedIndex = ((RequestPayload)recv.mPayload).getIndex();
+						byte [] pieceContent = FileManager.get(requestedIndex).getContent();
+						int pieceIndex = FileManager.get(requestedIndex).getIndex();
+						Message pieceToSend = new Message(MessageType.PIECE, new PiecePayload(pieceContent, pieceIndex));
+						serverOutputStream.writeObject(message);
+						serverOutputStream.reset();
+						serverOutputStream.flush();
+					}
+					else if(message.getMsgType().equals(BITFIELD)){
+						//TO BE IMPLEMENTED
+					}
+					else if(message.getMsgType().equals(PIECE)){
+						//TO BE IMPLEMENTED
+					}
+					else if(message.getMsgType().equals(INTERESTED)){
+						interestedPeers.add(neighbor);
+					}
+					else if(message.getMsgType().equals(NOT_INTERESTED)){
+						interestedPeers.remove(neighbor);
+					}
+				}
+				
+			}
+		};
+	}
 	
 	
 }
