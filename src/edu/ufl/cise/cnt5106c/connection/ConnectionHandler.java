@@ -215,7 +215,7 @@ public class ConnectionHandler extends Thread {
 								break;
 							case HAVE: {
 								HavePayLoad have = (HavePayLoad) (receivedMsg.getMsgPayload());
-								FileUtilities.updateBitfield(have.getIndex(), neighboringPeer.getBitfield());
+								FileUtilities.updateBitfield(have.getIndex(), neighboringPeer.getBitField());
 								Logger.haveFileMsgRecieved(neighboringPeer.getPeerId(), have.getIndex());
 								// Check whether the piece is interesting and send interested message
 								if (!FileManager.isInteresting(have.getIndex())) {
@@ -246,8 +246,8 @@ public class ConnectionHandler extends Thread {
 							case BITFIELD: {
 								BitFieldPayLoad in_payload = (BitFieldPayLoad) (receivedMsg.getMsgPayload());
 								// setting bitfield for the neighboring peer
-								neighboringPeer.setBitfield(in_payload.getBitfield());
-								if (!FileManager.compareBitfields(in_payload.getBitfield(), hostPeer.getBitfield())) {
+								neighboringPeer.setBitField(in_payload.getBitfield());
+								if (!FileManager.compareBitfields(in_payload.getBitfield(), hostPeer.getBitField())) {
 									System.out.println("Peer " + neighboringPeer.getPeerId()
 											+ " does not contain any interesting file pieces");
 									Message notInterested = new Message(MessageType.NOT_INTERESTED, null);
@@ -271,7 +271,7 @@ public class ConnectionHandler extends Thread {
 									e.printStackTrace();
 								}
 
-								hostPeer.setBitfield(FileManager.getBitField());
+								hostPeer.setBitField(FileManager.getBitField());
 
 								pManager.sendHaveAll(((PiecePayLoad) receivedMsg.getMsgPayload()).getIndex());
 								piecesDownloaded++;
@@ -305,7 +305,7 @@ public class ConnectionHandler extends Thread {
 			 * Sends request message with piece index to neighbor
 			 */
 			void sendRequest() {
-				int pieceIdx = FileManager.requestPiece(neighboringPeer.getBitfield(), hostPeer.getBitfield(),
+				int pieceIdx = FileManager.requestPiece(neighboringPeer.getBitField(), hostPeer.getBitField(),
 						neighboringPeer.getPeerId());
 				if (pieceIdx == -1) {
 					System.out

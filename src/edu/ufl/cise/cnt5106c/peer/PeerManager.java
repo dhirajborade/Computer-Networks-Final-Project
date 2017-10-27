@@ -179,9 +179,9 @@ public class PeerManager extends Thread {
 							while (indexJ < CommonProperties.getNumberOfPreferredNeighbors() && it.hasNext()) {
 								Peer p = it.next();
 								// chooses peer adds it to k preferred peers list and unchokes them
-								p.getConn().resetPiecesDownloaded();
+								p.getConnHandler().resetPiecesDownloaded();
 								kNeighborPeers.add(p);
-								if (!p.isUnchoked())
+								if (!p.isUnChoked())
 									unChokePeer(p);
 								indexJ++;
 							}
@@ -221,9 +221,9 @@ public class PeerManager extends Thread {
 								while (indexJ < CommonProperties.getNumberOfPreferredNeighbors() && it.hasNext()) {
 									Peer p = it.next();
 									// chooses peer adds it to k preferred peers list and unchokes them
-									p.getConn().resetPiecesDownloaded();
+									p.getConnHandler().resetPiecesDownloaded();
 									kNeighborPeers.add(p);
-									if (!p.isUnchoked())
+									if (!p.isUnChoked())
 										unChokePeer(p);
 									indexJ++;
 								}
@@ -267,7 +267,7 @@ public class PeerManager extends Thread {
 						if (interestedPeers.size() != 0) {
 							// Selects a choked interesting peer
 							p = prs[r.nextInt(prs.length)];
-							while (p.isUnchoked()) {
+							while (p.isUnChoked()) {
 								p = prs[r.nextInt(prs.length)];
 							}
 							optimizedUnchokedPeer = p;
@@ -286,7 +286,7 @@ public class PeerManager extends Thread {
 							if (interestedPeers.size() != 0) {
 								// Selects a choked interesting peer
 								p = prs[r.nextInt(prs.length)];
-								while (p.isUnchoked()) {
+								while (p.isUnChoked()) {
 									p = prs[r.nextInt(prs.length)];
 								}
 								optimizedUnchokedPeer = p;
@@ -312,10 +312,10 @@ public class PeerManager extends Thread {
 	 */
 	public void unChokePeer(Peer p) {
 
-		p.unChoke(true);
+		p.setUnChoked(true);
 		// send unchoke message to peer p
 		Message msgUnchoke = new Message(MessageType.UNCHOKE, null);
-		p.getConn().sendMessage(msgUnchoke);
+		p.getConnHandler().sendMessage(msgUnchoke);
 		// log here or after receiving the message
 		Logger.peerUnchoked(p.getPeerId());
 	}
@@ -330,10 +330,10 @@ public class PeerManager extends Thread {
 		while (itr.hasNext()) {
 			Entry<Integer, Peer> entry = itr.next();
 			Peer temp = (Peer) entry.getValue();
-			if (!kNeighborPeers.contains(temp) && temp != optimizedUnchokedPeer && temp.getConn() != null) {
-				temp.unChoke(false);
+			if (!kNeighborPeers.contains(temp) && temp != optimizedUnchokedPeer && temp.getConnHandler() != null) {
+				temp.setUnChoked(false);
 				Message chokeMsg = new Message(MessageType.CHOKE, null);
-				temp.getConn().sendMessage(chokeMsg);
+				temp.getConnHandler().sendMessage(chokeMsg);
 				// TODO call method to stop sending data to neighbor
 				Logger.peerChoked(temp.getPeerId());
 			}
@@ -356,7 +356,7 @@ public class PeerManager extends Thread {
 		while (itr.hasNext()) {
 			Entry<Integer, Peer> entry = itr.next();
 			Peer temp = entry.getValue();
-			temp.getConn().sendMessage(have);
+			temp.getConnHandler().sendMessage(have);
 		}
 	}
 
