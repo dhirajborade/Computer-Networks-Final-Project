@@ -202,18 +202,14 @@ public class ConnectionHandler extends Thread {
 						System.out.println("Received message type: " + receivedMsg.getMsgType() + " from: "
 								+ neighboringPeer.getPeerId());
 						if (receivedMsg != null) {
-							switch (receivedMsg.getMsgType()) {
-							case UNCHOKE: {
+							if (receivedMsg.getMsgType().equals(MessageType.UNCHOKE)) {
 								Logger.peerUnchoked(neighboringPeer.getPeerId());
 								unChokeFlag = true;
 								sendRequest();
-								break;
-							}
-							case CHOKE:
+							} else if (receivedMsg.getMsgType().equals(MessageType.CHOKE)) {
 								Logger.peerChoked(neighboringPeer.getPeerId());
 								unChokeFlag = false;
-								break;
-							case HAVE: {
+							} else if (receivedMsg.getMsgType().equals(MessageType.HAVE)) {
 								HavePayLoad have = (HavePayLoad) (receivedMsg.getMsgPayload());
 								FileUtilities.updateBitfield(have.getIndex(), neighboringPeer.getBitField());
 								Logger.haveFileMsgRecieved(neighboringPeer.getPeerId(), have.getIndex());
@@ -224,26 +220,20 @@ public class ConnectionHandler extends Thread {
 									Message interested = new Message(MessageType.INTERESTED, null);
 									sendMessage(interested);
 								}
-								break;
-							}
-							case REQUEST: {
+							} else if (receivedMsg.getMsgType().equals(MessageType.REQUEST)) {
 								int requestedIndex = ((RequestPayLoad) receivedMsg.getMsgPayload()).getIndex();
 								byte[] pieceContent = FileManager.get(requestedIndex).getContent();
 								int pieceIndex = FileManager.get(requestedIndex).getIndex();
 								Message pieceToSend = new Message(MessageType.PIECE,
 										new PiecePayLoad(pieceContent, pieceIndex));
 								sendMessage(pieceToSend);
-								break;
-							}
-							case INTERESTED:
+							} else if (receivedMsg.getMsgType().equals(MessageType.INTERESTED)) {
 								pManager.add(neighboringPeer);
 								Logger.interestedMsgRecieved(neighboringPeer.getPeerId());
-								break;
-							case NOT_INTERESTED:
+							} else if (receivedMsg.getMsgType().equals(MessageType.NOT_INTERESTED)) {
 								pManager.remove(neighboringPeer);
 								Logger.notInterestedMsgRecieved(neighboringPeer.getPeerId());
-								break;
-							case BITFIELD: {
+							} else if (receivedMsg.getMsgType().equals(MessageType.BITFIELD)) {
 								BitFieldPayLoad in_payload = (BitFieldPayLoad) (receivedMsg.getMsgPayload());
 								// setting bitfield for the neighboring peer
 								neighboringPeer.setBitField(in_payload.getBitfield());
@@ -259,11 +249,7 @@ public class ConnectionHandler extends Thread {
 								Message interested = new Message(MessageType.INTERESTED, null);
 								sendMessage(interested);
 								// No need to add peers that you are interested in.
-
-								break;
-							}
-							case PIECE: {
-
+							} else if (receivedMsg.getMsgType().equals(MessageType.PIECE)) {
 								try {
 									FileManager.store((PiecePayLoad) receivedMsg.getMsgPayload());
 								} catch (Exception e) {
@@ -283,8 +269,6 @@ public class ConnectionHandler extends Thread {
 
 								if (unChokeFlag)
 									sendRequest();
-								break;
-							}
 							}
 						}
 					} catch (SocketException e) {
