@@ -21,27 +21,26 @@ public class CommonProperties {
 	private static String fileName;
 	private static int fileSize;
 	private static int pieceSize;
-	
+
 	public void read(Reader reader) throws FileNotFoundException, IOException, ParseException {
 		try {
 			BufferedReader in = new BufferedReader(new FileReader("Common.cfg"));
-			String line;
-			for (line = in.readLine(); line != null;) {
+			for (String line; (line = in.readLine()) != null;) {
 				String[] config = line.split(" ");
 				String name = config[0];
 				String value = config[1];
 
-				if (name == "NumberOfPreferredNeighbors") {
+				if (name.equals("NumberOfPreferredNeighbors")) {
 					numberOfPreferredNeighbors = Integer.parseInt(value) + 1;
-				} else if (name == "UnchokingInterval") {
+				} else if (name.equals("UnchokingInterval")) {
 					unchokingInterval = Integer.parseInt(value);
-				} else if (name == "OptimisticUnchokingInterval") {
+				} else if (name.equals("OptimisticUnchokingInterval")) {
 					optimisticUnchokingInterval = Integer.parseInt(value);
-				} else if (name == "FileName") {
+				} else if (name.equals("FileName")) {
 					fileName = value;
-				} else if (name == "FileSize") {
+				} else if (name.equals("FileSize")) {
 					fileSize = Integer.parseInt(value);
-				} else if (name == "PieceSize") {
+				} else if (name.equals("PieceSize")) {
 					pieceSize = Integer.parseInt(value);
 				}
 			}
