@@ -219,6 +219,7 @@ public class FileManager {
 		byte[] bitfield = new byte[size];
 		int counter = 0;
 		int indexI = 0;
+		// TODO Implement Professor Logic
 		while (indexI < noOfFilePieces) {
 			int temp;
 			if (noOfFilePieces > indexI + 8) {

@@ -201,32 +201,6 @@ public class Process extends Peer implements Runnable {
 
 	}
 
-	// public static void getConfiguration(String[] ar) {
-	// String st;
-	// try {
-	// String hostname = InetAddress.getLocalHost().getHostName();
-	// String FileName = "PeerInfo.cfg";
-	// BufferedReader in = new BufferedReader(new FileReader(FileName));
-	//
-	// PeerProcess hostPeer = null;
-	//
-	// while ((st = in.readLine()) != null) {
-	// String[] tokens = st.split("\\s+");
-	// if (ar[0].equalsIgnoreCase(tokens[0])) {
-	// hostPeer = new PeerProcess(tokens[0], tokens[1], tokens[2], tokens[3]);
-	// } else {
-	// Peer peer = new Peer(tokens[0], tokens[1], tokens[2], tokens[3]);
-	// peers.put(Integer.parseInt(tokens[0]), peer);
-	// }
-	// }
-	// in.close();
-	//
-	// new Thread(hostPeer).start();
-	// } catch (Exception ex) {
-	// System.out.println(ex.toString());
-	// }
-	// }
-
 	public void initialize(Process peerProcess) {
 		Thread t = new Thread(peerProcess);
 		t.setName("peerProcess-" + this.getPeerId());
@@ -238,18 +212,17 @@ public class Process extends Peer implements Runnable {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		// getConfiguration(args);
 	}
 
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-		System.out.println("Starting peer " + getPeerId());
+		System.out.println("Starting peer " + this.getPeerId());
 
-		new FileManager(getPeerId(), isFilePresent());
+		new FileManager(this.getPeerId(), this.isFilePresent());
 
 		try {
-			setBitField(FileManager.getBitField());
+			this.setBitField(FileManager.getBitField());
 			sSocket = new ServerSocket(this.getPortNumber());
 			System.out.println("Server socket created for peer " + getHostName());
 		} catch (Exception e) {

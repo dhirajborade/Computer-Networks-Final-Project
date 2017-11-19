@@ -55,9 +55,9 @@ public class PeerProcess {
 
 		Process peerProcess = new Process(peerId, ipAddress, portNumber, hasFile, commInfo);
 		peerProcess.initialize(peerProcess);
-		Thread t = new Thread(peerProcess);
-		t.setName("peerProcess-" + peerId);
-		t.start();
+//		Thread t = new Thread(peerProcess);
+//		t.setName("peerProcess-" + peerId);
+//		t.start();
 
 		try {
 			Thread.sleep(5);
